@@ -19,7 +19,7 @@ class Courier extends Model {
     this.belongsTo(models.File,
       {
         foreignKey: 'avatar_id', as: 'avatar',
-        onDelete: 'SET NULL',
+        onDelete: 'CASCADE',
         hooks: true,
       });
   }
