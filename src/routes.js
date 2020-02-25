@@ -10,6 +10,7 @@ import DeliveryPickedController from './app/controllers/DeliveryPickedController
 import DeliveryDeliveredController from './app/controllers/DeliveryDeliveredController';
 import CourierDeliveryController from './app/controllers/CourierDeliveryController';
 import DeliveryProblemController from './app/controllers/DeliveryProblemController';
+import ProblemController from './app/controllers/ProblemController';
 
 import authMiddleware from './app/middlewares/auth';
 
@@ -32,6 +33,9 @@ routes.post('/deliveries/:id/problems', DeliveryProblemController.store.bind(Del
 
 
 routes.use(authMiddleware);
+
+routes.get('/problems', ProblemController.index.bind(ProblemController));
+routes.delete('/problems/:id/cancel-delivery', ProblemController.delete.bind(ProblemController));
 
 routes.post('/recipients', RecipientController.store.bind(RecipientController));
 routes.put('/recipients/:id', RecipientController.update.bind(RecipientController));
