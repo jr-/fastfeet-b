@@ -37,6 +37,7 @@ routes.use(authMiddleware);
 routes.get('/problems', ProblemController.index.bind(ProblemController));
 routes.delete('/problems/:id/cancel-delivery', ProblemController.delete.bind(ProblemController));
 
+routes.get('/recipients', RecipientController.index.bind(RecipientController));
 routes.post('/recipients', RecipientController.store.bind(RecipientController));
 routes.put('/recipients/:id', RecipientController.update.bind(RecipientController));
 
