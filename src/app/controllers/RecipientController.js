@@ -14,7 +14,6 @@ class RecipientController {
       order: ['created_at'],
       limit: 20,
       offset: (page - 1) * 20,
-      attributes: ['id', 'name'],
     });
 
     return res.json(recipients);

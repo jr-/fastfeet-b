@@ -3,6 +3,7 @@ import { Op } from 'sequelize';
 import Delivery from '../models/Delivery';
 import Recipient from '../models/Recipient';
 import Courier from '../models/Courier';
+import File from '../models/File';
 
 import DeliveryMail from '../jobs/DeliveryMail';
 import Queue from '../../lib/Queue';
@@ -12,14 +13,33 @@ class DeliveryController {
   async index(req, res) {
     const { page = 1, name } = req.query;
 
-    const where = name ? { end_date: null, canceled_at: null, product: { [Op.iLike]: name} } : {end_date: null, canceled_at: null};
+    const where = name ? { name: { [Op.iLike]: name} } : {};
     const deliveries = await Delivery.findAll({
-      where,
-      order: ['created_at'],
-      limit: 20,
-      offset: (page - 1) * 20,
-      attributes: ['id', 'product'],
-    });
+        where,
+        order: ['created_at'],
+        limit: 20,
+        offset: (page - 1) * 20,
+        include: [
+          {
+            model: Courier,
+            as: 'courier',
+            include: [
+              {
+                model: File,
+                as: 'avatar',
+              },
+            ],
+          },
+          {
+            model: Recipient,
+            as: 'recipient',
+          },
+          {
+            model: File,
+            as: 'signature',
+          }
+        ]
+      });
 
     return res.json(deliveries);
   }

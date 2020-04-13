@@ -20,7 +20,6 @@ class CourierController {
         {
           model: File,
           as: 'avatar',
-          attributes: ['id', 'name'],
         },
       ],
     });
@@ -57,8 +56,6 @@ class CourierController {
 
     courierJSON.avatar_id = file.id;
 
-    console.log(courierJSON);
-
     const { name: courierName, email } = await Courier.create(courierJSON);
 
     return res.json({courier: { name: courierName, email}});
@@ -72,29 +69,57 @@ class CourierController {
         .required(),
     });
 
-    if(!schema.isValid(req.body)) {
-      return res.status(400).json({ error: 'Validation fails' });
-    }
-
     const { id } = req.params;
 
-    const courier = await Courier.findByPk(id);
+    const courier = await Courier.findOne({
+      where: {
+        id: parseInt(id)
+      },
+      include: [
+        {
+          model: File,
+          as: 'avatar',
+        },
+      ],
+    });
 
     if (!courier) {
       return res.status(400).json({ error: "Courier doesn't exists." });
     }
 
-    if (courier.email !== req.body.email) {
-      const emailExists = await Courier.findOne({ where: {email: req.body.email}});
+    let courierUpdated = null;
+    if (req.body.courier) {
+      const courierJSON = JSON.parse(req.body.courier);
 
-      if (emailExists) {
-        return res.status(400).json({ error: "Courier email already taken"});
+      if(!schema.isValid(courierJSON)) {
+        return res.status(400).json({ error: 'Validation fails' });
       }
+
+      if (courier.email !== courierJSON.email) {
+        const emailExists = await Courier.findOne({ where: {email: courierJSON.email}});
+
+        if (emailExists) {
+          return res.status(400).json({ error: "Courier email already taken"});
+        }
+      }
+
+      courierUpdated = await courier.update(courierJSON);
     }
 
-    const courierUpdated = await courier.update(req.body);
+    let avatarUpdated = null;
+    if (req.file) {
+      const { originalname: name, filename: path } = req.file;
+      console.log(name, path);
+      avatarUpdated = await courier.avatar.update({name, path});
+    }
 
-    return res.json(courierUpdated);
+    const courierRes = courierUpdated ? courierUpdated : courier;
+
+    if (avatarUpdated) {
+      courierRes.avatar = avatarUpdated;
+    }
+
+    return res.json(courierRes);
 
   }
 
