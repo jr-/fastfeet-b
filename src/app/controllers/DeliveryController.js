@@ -13,7 +13,7 @@ class DeliveryController {
   async index(req, res) {
     const { page = 1, name } = req.query;
 
-    const where = name ? { name: { [Op.iLike]: name} } : {};
+    const where = name ? { product: { [Op.iLike]: name} } : {};
     const deliveries = await Delivery.findAll({
         where,
         order: ['created_at'],
@@ -138,11 +138,9 @@ class DeliveryController {
       return res.status(400).json({ error: "Delivery doesn't exists." });
     }
 
-    delivery.canceled_at = new Date();
+    await delivery.destroy();
 
-    await delivery.save();
-
-    return res.json(delivery);
+    return res.json();
   }
 }
 

@@ -61,6 +61,23 @@ class RecipientController {
 
     return schema.isValid(recipient);
   }
+
+  async delete(req, res) {
+    const { id } = req.params;
+
+    const recipient = await Recipient.findByPk(id);
+
+    if (!recipient) {
+      return res.status(404).json({
+        error: "This recipient doesn't exists",
+      });
+    }
+
+    await recipient.destroy();
+
+    return res.json();
+
+  }
 }
 
 export default new RecipientController();
